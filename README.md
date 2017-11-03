@@ -1,2 +1,5 @@
-# blog-multi-region-serverless-service
-Blog code for deploying a Serverless API into multiple regions
+Blog Multi Region Serverless Service
+
+## License
+
+This library is licensed under the Apache 2.0 License. 
