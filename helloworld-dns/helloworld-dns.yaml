@@ -1,0 +1,76 @@
+    AWSTemplateFormatVersion: '2010-09-09'
+    Description: 'Setting up Service Discovery for two API end points.'
+    Parameters:
+      Region1HealthEndpoint:
+        Description: The health endpoint in the first region.
+        Type: String
+      Region2HealthEndpoint:
+        Description: The health endpoint in the second region.
+        Type: String
+      Region1Endpoint:
+        Description: The endpoint in the first region.
+        Type: String
+      Region2Endpoint:
+        Description: The endpoint in the second region.
+        Type: String
+      HostedZoneId:
+        Description: The hosted zone we will create records in.
+        Type: String
+      MultiregionEndpoint:
+        Description: The hostname of the multi-region endpoint.
+        Type: String
+
+
+    Resources:
+      HealthcheckRegion1:
+        Type: "AWS::Route53::HealthCheck"
+        Properties:
+          HealthCheckConfig:
+            Port: "443"
+            Type: "HTTPS_STR_MATCH"
+            SearchString: "ok"
+            ResourcePath: "/prod/healthcheck"
+            FullyQualifiedDomainName: !Ref Region1HealthEndpoint
+            RequestInterval: "30"
+            FailureThreshold: "2"
+
+      HealthcheckRegion2:
+        Type: "AWS::Route53::HealthCheck"
+        Properties:
+          HealthCheckConfig:
+            Port: "443"
+            Type: "HTTPS_STR_MATCH"
+            SearchString: "ok"
+            ResourcePath: "/prod/healthcheck"
+            FullyQualifiedDomainName: !Ref Region2HealthEndpoint
+            RequestInterval: "30"
+            FailureThreshold: "2"
+
+
+      Region1EndpointRecord:
+              Type: AWS::Route53::RecordSet
+              Properties:
+                Region: us-east-1
+                HealthCheckId: !Ref HealthcheckRegion1
+                SetIdentifier: "endpoint-region1"
+                HostedZoneId: !Ref HostedZoneId
+                Name: !Ref MultiregionEndpoint
+                Type: CNAME
+                TTL: 60
+                ResourceRecords:
+                  - !Ref Region1Endpoint
+
+
+      Region2EndpointRecord:
+        Type: AWS::Route53::RecordSet
+        Properties:
+          Region: us-west-2
+          HealthCheckId: !Ref HealthcheckRegion2
+          SetIdentifier: "endpoint-region2"
+          HostedZoneId: !Ref HostedZoneId
+          Name: !Ref MultiregionEndpoint
+          Type: CNAME
+          TTL: 60
+          ResourceRecords:
+            - !Ref Region2Endpoint
+

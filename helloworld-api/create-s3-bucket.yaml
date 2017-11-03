@@ -1,0 +1,13 @@
+    AWSTemplateFormatVersion: '2010-09-09'
+    Description: 'Create an S3 bucket that can be used by AWS Serverless Application Model (SAM).'
+    Parameters:
+      BucketName:
+        Description: The name of the bucket.
+        Type: String
+
+
+    Resources:
+      S3Bucket:
+        Type: AWS::S3::Bucket
+        Properties:
+          BucketName: !Ref BucketName
